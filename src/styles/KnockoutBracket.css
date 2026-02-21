@@ -1,0 +1,27 @@
+.bracket {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+}
+
+.round {
+  background: #fafafa;
+  padding: 12px;
+  border-radius: 8px;
+}
+
+.match {
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  margin-bottom: 12px;
+}
+
+.team {
+  padding: 6px 8px;
+}
+
+.team.winner {
+  font-weight: bold;
+  background: #e6fffb;
+}
