@@ -27,6 +27,7 @@ export default function GroupStage() {
         map[p.matchId] = {
           homeScore: p.homeScore,
           awayScore: p.awayScore,
+          pointsAwarded: p.pointsAwarded || 0,
         };
       });
 
@@ -38,6 +39,7 @@ export default function GroupStage() {
 
   const updatePredictionField = (matchId, field, value) => {
     const safeValue = Math.max(0, Number(value));
+
     setPredictions((prev) => ({
       ...prev,
       [matchId]: {
@@ -54,18 +56,17 @@ export default function GroupStage() {
     try {
       setSaving(true);
 
-      const requests = Object.entries(predictions).map(
-        ([matchId, p]) =>
-          api.post("/predictions", {
-            matchId: Number(matchId),
-            homeScore: Number(p.homeScore),
-            awayScore: Number(p.awayScore),
-          })
+      const requests = Object.entries(predictions).map(([matchId, p]) =>
+        api.post("/predictions", {
+          matchId: Number(matchId),
+          homeScore: Number(p.homeScore),
+          awayScore: Number(p.awayScore),
+        })
       );
-      
-      window.dispatchEvent(new Event("predictions-updated"));
 
       await Promise.all(requests);
+
+      window.dispatchEvent(new Event("predictions-updated"));
 
       setSaving(false);
       setSaved(true);
@@ -79,140 +80,97 @@ export default function GroupStage() {
   };
 
   return (
-    <div style={{ paddingBottom: "90px" }}>
+    <div className="page">
       <h1>Group Stage</h1>
 
       <PredictionLockCountdown />
 
       {locked && (
-        <p style={{ color: "red", marginBottom: "1rem" }}>
+        <p className="lock-warning">
           Predictions are locked. The tournament has started.
         </p>
       )}
 
-      {/* TWO-COLUMN LAYOUT */}
-      <div
-        style={{
-          display: "flex",
-          gap: "24px",
-          alignItems: "flex-start",
-          flexWrap: "wrap",
-        }}
-      >
-        {/* LEFT SIDE — MATCHES */}
-        <div style={{ flex: 2, minWidth: "500px" }}>
-          {matches.map((m) => (
-            <div
-              key={m.id}
-              style={{
-                marginBottom: "12px",
-                padding: "8px 0",
-                borderBottom: "1px solid #eee",
-              }}
-            >
-    <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        gap: "10px",
-        flexWrap: "wrap",
-      }}
-    >
-      {/* Home team */}
-      <span style={{ minWidth: "140px", textAlign: "right" }}>
-        {m.homeTeam.name}
-      </span>
+      <div className="layout">
+        {/* MATCHES */}
+        <div className="matches">
 
-      {/* Home score */}
-      <input
-        type="number"
-        min="0"
-        disabled={locked}
-        value={predictions[m.id]?.homeScore ?? ""}
-        onChange={(e) =>
-          updatePredictionField(m.id, "homeScore", e.target.value)
-        }
-        style={{
-          width: "30px",
-          textAlign: "center",
-        }}
-      />
+          {matches.map((m) => {
+            const prediction = predictions[m.id];
 
-      <span style={{ fontWeight: "bold" }}>vs</span>
+            return (
+              <div key={m.id} className="match-row">
 
-      {/* Away score */}
-      <input
-        type="number"
-        min="0"
-        disabled={locked}
-        value={predictions[m.id]?.awayScore ?? ""}
-        onChange={(e) =>
-          updatePredictionField(m.id, "awayScore", e.target.value)
-        }
-        style={{
-          width: "30px",
-          textAlign: "center",
-        }}
-      />
+                <span className="team team-home">
+                  {m.homeTeam.name}
+                </span>
 
-      {/* Away team */}
-      <span style={{ minWidth: "140px" }}>
-        {m.awayTeam.name}
-      </span>
-    </div>
-  </div>
-))}
+                <input
+                  className="score-input"
+                  type="number"
+                  min="0"
+                  disabled={locked}
+                  value={prediction?.homeScore ?? ""}
+                  onChange={(e) =>
+                    updatePredictionField(m.id, "homeScore", e.target.value)
+                  }
+                />
 
+                <span className="vs">vs</span>
+
+                <input
+                  className="score-input"
+                  type="number"
+                  min="0"
+                  disabled={locked}
+                  value={prediction?.awayScore ?? ""}
+                  onChange={(e) =>
+                    updatePredictionField(m.id, "awayScore", e.target.value)
+                  }
+                />
+
+                <span className="team team-away">
+                  {m.awayTeam.name}
+                </span>
+
+                {/* ACTUAL RESULT */}
+                {m.homeScore !== null && (
+                  <div className="match-result">
+                    Result: <strong>{m.homeScore} - {m.awayScore}</strong>
+                  </div>
+                )}
+
+                {/* POINTS */}
+                {prediction && (
+                  <div className={`points points-${prediction.pointsAwarded}`}>
+                    {prediction.pointsAwarded} pts
+                  </div>
+                )}
+
+              </div>
+            );
+          })}
         </div>
 
-        {/* RIGHT SIDE — GROUP TABLES */}
-        <div
-          style={{
-            flex: 1,
-            minWidth: "320px",
-            position: "sticky",
-            top: "80px",
-            alignSelf: "flex-start",
-          }}
-        >
-        <GroupTables
-          matches={matches}
-          predictions={predictions}
-        />
+        {/* GROUP TABLES */}
+        <div className="tables">
+          <GroupTables matches={matches} predictions={predictions} />
         </div>
+
       </div>
 
-      {/* STICKY SAVE BAR */}
       {!locked && (
-        <div
-          style={{
-            position: "sticky",
-            bottom: 0,
-            background: "#fff",
-            borderTop: "1px solid #ddd",
-            padding: "12px 16px",
-            marginTop: "20px",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            gap: "12px",
-            boxShadow: "0 -2px 8px rgba(0,0,0,0.08)",
-            zIndex: 100,
-          }}
-        >
+        <div className="save-bar">
+
           <button
             onClick={saveAllPredictions}
             disabled={!dirty || saving}
-            style={{
-              padding: "10px 18px",
-              fontWeight: "bold",
-              cursor: !dirty || saving ? "not-allowed" : "pointer",
-            }}
           >
             {saving ? "Saving..." : "Save All Predictions"}
           </button>
 
-          {saved && <span style={{ color: "green" }}>Saved ✓</span>}
+          {saved && <span className="saved">Saved ✓</span>}
+
         </div>
       )}
     </div>

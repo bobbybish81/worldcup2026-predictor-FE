@@ -15,6 +15,8 @@ import AdminDashboard from "./pages/AdminDashboard";
 import RequireAuth from "./context/RequireAuth";
 import AdminRoute from "./context/AdminRoute";
 
+import "./styles/app.css";
+
 function App() {
   return (
     <Routes>

@@ -5,18 +5,21 @@ export default function Leaderboard() {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchLeaderboard = () => {
-      api.get("/leaderboard")
-      .then((res) => {setRows(res.data)
-      .finally(() => setLoading(false));  
-    });
+  const fetchLeaderboard = async () => {
+    try {
+      const res = await api.get("/leaderboard");
+      setRows(res.data);
+    } catch (err) {
+      console.error("Failed to load leaderboard", err);
+    } finally {
+      setLoading(false);
+    }
   };
 
+  useEffect(() => {
     fetchLeaderboard();
 
     const interval = setInterval(fetchLeaderboard, 30000);
-
     return () => clearInterval(interval);
   }, []);
 
@@ -25,10 +28,12 @@ export default function Leaderboard() {
   }
 
   return (
-    <div>
+    <div className="page">
+
       <h1>Leaderboard</h1>
 
-      <table border="1" cellPadding="8">
+      <table className="leaderboard">
+
         <thead>
           <tr>
             <th>Rank</th>
@@ -38,26 +43,30 @@ export default function Leaderboard() {
             <th>Total</th>
           </tr>
         </thead>
+
         <tbody>
           {rows.map((r) => (
             <tr
               key={r.username}
-              style={{
-                background:
-                  r.username === localStorage.getItem("username")
-                    ? "#e6f7ff"
-                    : "transparent",
-              }}
+              className={
+                r.username === localStorage.getItem("username")
+                  ? "current-user"
+                  : ""
+              }
             >
               <td>{r.rank}</td>
               <td>{r.username}</td>
               <td>{r.groupStage}</td>
               <td>{r.knockoutStage}</td>
-              <td><strong>{r.total}</strong></td>
+              <td className="total">
+                {r.total}
+              </td>
             </tr>
           ))}
         </tbody>
+
       </table>
+
     </div>
   );
 }

@@ -5,14 +5,31 @@ export default function KnockoutResults() {
   const [round, setRound] = useState("R16");
   const [matchKey, setMatchKey] = useState("");
   const [winnerTeamId, setWinnerTeamId] = useState("");
+  const [saving, setSaving] = useState(false);
 
-  const submitResult = () => {
+  const submitResult = async () => {
     if (!window.confirm("Are you sure this result is correct?")) return;
-    api.post("/knockout-results", {
-      round,
-      matchKey,
-      actualWinnerTeamId: Number(winnerTeamId),
-    });
+
+    try {
+      setSaving(true);
+
+      await api.post("/knockout-results", {
+        round,
+        matchKey,
+        actualWinnerTeamId: Number(winnerTeamId),
+      });
+
+      alert("Result saved");
+
+      setMatchKey("");
+      setWinnerTeamId("");
+
+    } catch (err) {
+      console.error(err);
+      alert("Failed to save result");
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -30,17 +47,15 @@ export default function KnockoutResults() {
         onChange={(e) => setMatchKey(e.target.value)}
       />
 
-      <p style={{ fontSize: "12px", color: "#666", margin: "4px 0" }}>
-        Examples: R16-1, R16-2, QF-1, SF-1, F-1
-      </p>
-      
       <input
         placeholder="Winner Team ID"
         value={winnerTeamId}
         onChange={(e) => setWinnerTeamId(e.target.value)}
       />
 
-      <button onClick={submitResult}>Save Knockout Result</button>
+      <button onClick={submitResult} disabled={saving}>
+        {saving ? "Saving..." : "Save Knockout Result"}
+      </button>
     </div>
   );
 }

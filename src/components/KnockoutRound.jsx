@@ -85,7 +85,7 @@ export default function KnockoutRound({ round, fixtures }) {
               style={{
                 background:
                   selected[matchKey] === m.homeTeam?.teamId
-                    ? "#d4f8d4"
+                    ? "#2fdf2f"
                     : ""
               }}
               onClick={() =>
@@ -101,7 +101,7 @@ export default function KnockoutRound({ round, fixtures }) {
               style={{
                 background:
                   selected[matchKey] === m.awayTeam?.teamId
-                    ? "#d4f8d4"
+                    ? "#2fdf2f"
                     : ""
               }}
               onClick={() =>
