@@ -86,7 +86,7 @@ export default function GroupResults() {
                 type="number"
                 placeholder="Home"
                 disabled={isSaved}
-                defaultValue={m.homeScore ?? ""}
+                value={scores[m.id]?.homeScore ?? m.homeScore ?? ""}
                 onChange={(e) =>
                   updateScore(m.id, "homeScore", e.target.value)
                 }
@@ -96,7 +96,7 @@ export default function GroupResults() {
                 type="number"
                 placeholder="Away"
                 disabled={isSaved}
-                defaultValue={m.awayScore ?? ""}
+                value={scores[m.id]?.awayScore ?? m.awayScore ?? ""}
                 onChange={(e) =>
                   updateScore(m.id, "awayScore", e.target.value)
                 }

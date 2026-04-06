@@ -21,7 +21,7 @@ export default function KnockoutResults() {
         <option value="R16">Round of 16</option>
         <option value="QF">Quarter Final</option>
         <option value="SF">Semi Final</option>
-        <option value="FINAL">Final</option>
+        <option value="F">Final</option>
       </select>
 
       <input
@@ -31,7 +31,7 @@ export default function KnockoutResults() {
       />
 
       <p style={{ fontSize: "12px", color: "#666", margin: "4px 0" }}>
-        Examples: R16-1, R16-2, QF-1, SF-1, FINAL-1
+        Examples: R16-1, R16-2, QF-1, SF-1, F-1
       </p>
       
       <input
